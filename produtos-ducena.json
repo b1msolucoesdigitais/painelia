@@ -1,0 +1,87 @@
+{
+  "produtos": [
+    {
+      "id": "1381",
+      "nome": "Colar Masculino Apaixonados",
+      "categoria": "Colares",
+      "subcategoria": "Românticos",
+      "preco_venda": 169.90,
+      "preco_promocao": 0,
+      "link_produto": "https://www.ducena.com.br/colar-dia-dos-namorados",
+      "imagem_destaque": "https://images.tcdn.com.br/img/img_prod/1044174/colar_dia_dos_namorados_1381_1_7bf24dfb57e40485a19c42a1a86cb5d4.jpg",
+      "descricao": "Colar masculino elegante para namorados, ideal para presentear",
+      "disponivel": true,
+      "estoque": 15
+    },
+    {
+      "id": "1383",
+      "nome": "Colar Meu Brilho de Amor",
+      "categoria": "Colares",
+      "subcategoria": "Românticos",
+      "preco_venda": 149.90,
+      "preco_promocao": 129.90,
+      "link_produto": "https://www.ducena.com.br/colar-meu-brilho-de-amor",
+      "imagem_destaque": "https://images.tcdn.com.br/img/img_prod/1044174/colar_meu_brilho_de_amor_1383_1_dd5183bfad9ceefa6085540154a85c02.jpg",
+      "descricao": "Colar feminino delicado com pedras brilhantes",
+      "disponivel": true,
+      "estoque": 8
+    },
+    {
+      "id": "1385",
+      "nome": "Colar Vovó com Pedras Cravejadas",
+      "categoria": "Colares",
+      "subcategoria": "Família",
+      "preco_venda": 149.90,
+      "preco_promocao": 0,
+      "link_produto": "https://www.ducena.com.br/colar-vovo-com-pedras-cravejadas",
+      "imagem_destaque": "https://images.tcdn.com.br/img/img_prod/1044174/colar_vovo_com_pedras_cravejadas_1385_1_8ef3a52615db8ca4ad1585853c92781d.jpg",
+      "descricao": "Colar especial para homenagear as vovós",
+      "disponivel": true,
+      "estoque": 12
+    },
+    {
+      "id": "1390",
+      "nome": "Pulseira Amizade Eterna",
+      "categoria": "Pulseiras",
+      "subcategoria": "Amizade",
+      "preco_venda": 89.90,
+      "preco_promocao": 69.90,
+      "link_produto": "https://www.ducena.com.br/pulseira-amizade-eterna",
+      "imagem_destaque": "https://images.tcdn.com.br/img/img_prod/1044174/pulseira_amizade_eterna_1390_1_exemplo.jpg",
+      "descricao": "Pulseira delicada para celebrar amizades",
+      "disponivel": true,
+      "estoque": 20
+    },
+    {
+      "id": "1395",
+      "nome": "Anel Compromisso",
+      "categoria": "Anéis",
+      "subcategoria": "Compromisso",
+      "preco_venda": 199.90,
+      "preco_promocao": 0,
+      "link_produto": "https://www.ducena.com.br/anel-compromisso",
+      "imagem_destaque": "https://images.tcdn.com.br/img/img_prod/1044174/anel_compromisso_1395_1_exemplo.jpg",
+      "descricao": "Anel elegante para pedidos de compromisso",
+      "disponivel": true,
+      "estoque": 5
+    }
+  ],
+  "categorias": [
+    "Colares",
+    "Pulseiras",
+    "Anéis",
+    "Brincos",
+    "Conjuntos"
+  ],
+  "subcategorias": {
+    "Colares": ["Românticos", "Família", "Amizade", "Elegantes"],
+    "Pulseiras": ["Amizade", "Românticas", "Elegantes", "Infantis"],
+    "Anéis": ["Compromisso", "Românticos", "Elegantes", "Infantis"]
+  },
+  "metadata": {
+    "empresa": "Ducena",
+    "site": "https://www.ducena.com.br",
+    "total_produtos": 5,
+    "ultima_atualizacao": "2024-01-01T00:00:00.000Z"
+  }
+}
