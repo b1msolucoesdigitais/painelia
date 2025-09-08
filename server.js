@@ -238,8 +238,22 @@ app.post('/api/prompt/structured', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Configuração do prompt é obrigatória' });
     }
 
-    // Validar estrutura básica
-    const requiredSections = ['personality', 'context', 'actions', 'product_search', 'restrictions', 'examples', 'settings'];
+    // Validar estrutura básica (todas as 13 seções)
+    const requiredSections = [
+      'current_date',
+      'greeting',
+      'personality',
+      'context',
+      'role_objective',
+      'actions',
+      'product_search',
+      'handoff',
+      'restrictions',
+      'essential_rules',
+      'settings',
+      'examples',
+      'closing'
+    ];
     for (const section of requiredSections) {
       if (!promptConfig[section] || !promptConfig[section].content) {
         return res.status(400).json({ message: `Seção '${section}' é obrigatória` });
@@ -271,7 +285,7 @@ app.post('/api/prompt/structured', authenticateToken, async (req, res) => {
       prompt_structured: promptConfig,
       prompt_format: 'markdown',
       prompt_sections: Object.keys(promptConfig).filter(key => key !== 'metadata'),
-      total_sections: promptConfig.metadata?.totalSections || 7,
+      total_sections: Object.keys(promptConfig).filter(key => key !== 'metadata').length,
       prompt_stats: {
         total_characters: fullPrompt.length,
         total_words: fullPrompt.split(/\s+/).length,
@@ -324,53 +338,67 @@ app.post('/api/prompt/structured', authenticateToken, async (req, res) => {
 function generateFullPrompt(promptConfig) {
   let fullPrompt = '';
   
-  // Cabeçalho principal
+  // Helper para remover emojis dos títulos
+  const sanitizeTitle = (title) => {
+    return (title || '').replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\uFE0F]/gu, '').trim();
+  };
+  
+  // Cabeçalho principal (sem metadados visíveis)
   fullPrompt += `# 🤖 **AGENTE DUCENA - ASSISTENTE DE VENDAS**\n\n`;
-  fullPrompt += `> **Empresa**: ${promptConfig.metadata?.company || 'Ducena'}\n`;
-  fullPrompt += `> **Site**: ${promptConfig.metadata?.website || 'https://www.ducena.com.br'}\n`;
-  fullPrompt += `> **Versão**: ${promptConfig.metadata?.version || '2.1.0'}\n\n`;
-  
-  // Seção 1: Personalidade
-  fullPrompt += `## 🎭 **${promptConfig.personality.title.toUpperCase()}**\n\n`;
+
+  // 1: Data Atual
+  fullPrompt += `## **${sanitizeTitle(promptConfig.current_date.title).toUpperCase()}**\n\n`;
+  fullPrompt += `${promptConfig.current_date.content || ''}\n\n`;
+
+  // 2: Saudação Inicial
+  fullPrompt += `## **${sanitizeTitle(promptConfig.greeting.title).toUpperCase()}**\n\n`;
+  fullPrompt += `${promptConfig.greeting.content}\n\n`;
+
+  // 3: Personalidade
+  fullPrompt += `## **${sanitizeTitle(promptConfig.personality.title).toUpperCase()}**\n\n`;
   fullPrompt += `${promptConfig.personality.content}\n\n`;
-  
-  // Seção 2: Contexto
-  fullPrompt += `## 📋 **${promptConfig.context.title.toUpperCase()}**\n\n`;
+
+  // 4: Contexto da Empresa
+  fullPrompt += `## **${sanitizeTitle(promptConfig.context.title).toUpperCase()}**\n\n`;
   fullPrompt += `${promptConfig.context.content}\n\n`;
-  
-  // Seção 3: Ações
-  fullPrompt += `## ⚡ **${promptConfig.actions.title.toUpperCase()}**\n\n`;
+
+  // 5: Função e Objetivo
+  fullPrompt += `## **${sanitizeTitle(promptConfig.role_objective.title).toUpperCase()}**\n\n`;
+  fullPrompt += `${promptConfig.role_objective.content}\n\n`;
+
+  // 6: Ações Principais
+  fullPrompt += `## **${sanitizeTitle(promptConfig.actions.title).toUpperCase()}**\n\n`;
   fullPrompt += `${promptConfig.actions.content}\n\n`;
-  
-  // Seção 4: Busca de Produtos (Destacada)
-  fullPrompt += `## 🔍 **${promptConfig.product_search.title.toUpperCase()}**\n\n`;
-  fullPrompt += `> **⚠️ FUNÇÃO CRÍTICA**: Esta é sua principal ferramenta para atendimento ao cliente.\n\n`;
+
+  // 7: Busca de Produtos
+  fullPrompt += `## **${sanitizeTitle(promptConfig.product_search.title).toUpperCase()}**\n\n`;
   fullPrompt += `${promptConfig.product_search.content}\n\n`;
-  
-  // Seção 5: Restrições
-  fullPrompt += `## 🚫 **${promptConfig.restrictions.title.toUpperCase()}**\n\n`;
+
+  // 8: Transferência de Atendimento
+  fullPrompt += `## **${sanitizeTitle(promptConfig.handoff.title).toUpperCase()}**\n\n`;
+  fullPrompt += `${promptConfig.handoff.content}\n\n`;
+
+  // 9: Restrições e Limites
+  fullPrompt += `## **${sanitizeTitle(promptConfig.restrictions.title).toUpperCase()}**\n\n`;
   fullPrompt += `${promptConfig.restrictions.content}\n\n`;
-  
-  // Seção 6: Exemplos
-  fullPrompt += `## 💡 **${promptConfig.examples.title.toUpperCase()}**\n\n`;
-  fullPrompt += `${promptConfig.examples.content}\n\n`;
-  
-  // Seção 7: Configurações
-  fullPrompt += `## 🔧 **${promptConfig.settings.title.toUpperCase()}**\n\n`;
+
+  // 10: Regras Essenciais
+  fullPrompt += `## **${sanitizeTitle(promptConfig.essential_rules.title).toUpperCase()}**\n\n`;
+  fullPrompt += `${promptConfig.essential_rules.content}\n\n`;
+
+  // 11: Configurações Específicas
+  fullPrompt += `## **${sanitizeTitle(promptConfig.settings.title).toUpperCase()}**\n\n`;
   fullPrompt += `${promptConfig.settings.content}\n\n`;
-  
-  // Rodapé e instrução final
-  fullPrompt += `---\n\n`;
-  fullPrompt += `## 🎯 **INSTRUÇÃO FINAL**\n\n`;
-  fullPrompt += `**Lembre-se sempre**: Você é um especialista da Ducena, focado em fornecer o melhor atendimento possível. Use as informações acima para responder de forma profissional, amigável e eficiente.\n\n`;
-  fullPrompt += `**Como posso ajudá-lo hoje?** 😊\n\n`;
-  
-  // Metadados técnicos
-  fullPrompt += `---\n\n`;
-  fullPrompt += `*Configuração gerada automaticamente pelo Painel Ducena*\n`;
-  fullPrompt += `*Última atualização: ${promptConfig.metadata?.lastUpdated ? new Date(promptConfig.metadata.lastUpdated).toLocaleString('pt-BR') : 'N/A'}*\n`;
-  fullPrompt += `*Total de caracteres: ${fullPrompt.length}*\n`;
-  
+
+  // 12: Exemplos de Respostas
+  fullPrompt += `## **${sanitizeTitle(promptConfig.examples.title).toUpperCase()}**\n\n`;
+  fullPrompt += `${promptConfig.examples.content}\n\n`;
+
+  // 13: Encerramento
+  fullPrompt += `## **${sanitizeTitle(promptConfig.closing.title).toUpperCase()}**\n\n`;
+  fullPrompt += `${promptConfig.closing.content}\n\n`;
+  // Removidos rodapé/instrução final e metadados conforme solicitado
+
   return fullPrompt;
 }
 

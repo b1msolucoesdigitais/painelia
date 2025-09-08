@@ -249,49 +249,91 @@ const StructuredPromptEditor = ({ onLogout }) => {
 
         {/* Prompt Sections Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Personalidade */}
+          {/* 1. Data Atual (nova) */}
+          <PromptSection
+            section={promptConfig.current_date}
+            onChange={(content) => handleSectionChange('current_date', content)}
+            highlight={true}
+          />
+
+          {/* 2. Saudação Inicial (nova) */}
+          <PromptSection
+            section={promptConfig.greeting}
+            onChange={(content) => handleSectionChange('greeting', content)}
+            highlight={true}
+          />
+
+          {/* 3. Personalidade */}
           <PromptSection
             section={promptConfig.personality}
             onChange={(content) => handleSectionChange('personality', content)}
             className="lg:col-span-2"
           />
 
-          {/* Contexto */}
+          {/* 4. Contexto da Empresa */}
           <PromptSection
             section={promptConfig.context}
             onChange={(content) => handleSectionChange('context', content)}
           />
 
-          {/* Ações */}
+          {/* 5. Função e Objetivo (nova) */}
+          <PromptSection
+            section={promptConfig.role_objective}
+            onChange={(content) => handleSectionChange('role_objective', content)}
+            highlight={true}
+          />
+
+          {/* 6. Ações Principais */}
           <PromptSection
             section={promptConfig.actions}
             onChange={(content) => handleSectionChange('actions', content)}
           />
 
-          {/* Busca de Produtos */}
+          {/* 7. Busca de Produtos */}
           <PromptSection
             section={promptConfig.product_search}
             onChange={(content) => handleSectionChange('product_search', content)}
             className="lg:col-span-2"
+          />
+
+          {/* 8. Transferência de Atendimento (nova) */}
+          <PromptSection
+            section={promptConfig.handoff}
+            onChange={(content) => handleSectionChange('handoff', content)}
             highlight={true}
           />
 
-          {/* Restrições e Exemplos lado a lado */}
+          {/* 9. Restrições e Limites */}
           <PromptSection
             section={promptConfig.restrictions}
             onChange={(content) => handleSectionChange('restrictions', content)}
           />
 
+          {/* 10. Regras Essenciais (nova) */}
+          <PromptSection
+            section={promptConfig.essential_rules}
+            onChange={(content) => handleSectionChange('essential_rules', content)}
+            highlight={true}
+          />
+
+          {/* 11. Configurações Específicas */}
+          <PromptSection
+            section={promptConfig.settings}
+            onChange={(content) => handleSectionChange('settings', content)}
+            className="lg:col-span-2"
+          />
+
+          {/* 12. Exemplos de Respostas */}
           <PromptSection
             section={promptConfig.examples}
             onChange={(content) => handleSectionChange('examples', content)}
           />
 
-          {/* Configurações */}
+          {/* 13. Encerramento (nova) */}
           <PromptSection
-            section={promptConfig.settings}
-            onChange={(content) => handleSectionChange('settings', content)}
-            className="lg:col-span-2"
+            section={promptConfig.closing}
+            onChange={(content) => handleSectionChange('closing', content)}
+            highlight={true}
           />
         </div>
 
@@ -332,6 +374,8 @@ const StructuredPromptEditor = ({ onLogout }) => {
 };
 
 const PromptSection = ({ section, onChange, className = '', highlight = false }) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   return (
     <div className={`bg-white rounded-xl shadow-sm border border-gray-200 p-6 ${className} ${
       highlight ? 'ring-2 ring-pink-200 bg-pink-50' : ''
@@ -339,11 +383,15 @@ const PromptSection = ({ section, onChange, className = '', highlight = false })
       <div className="mb-4">
         <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center">
           {section.title}
-          {highlight && (
-            <span className="ml-2 px-2 py-1 bg-pink-100 text-pink-800 text-xs rounded-full font-medium">
-              NOVO
-            </span>
-          )}
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={() => setIsFullscreen(true)}
+              className="text-xs px-2 py-1 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              title="Editar em tela cheia"
+            >
+              Tela cheia
+            </button>
+          </div>
         </h3>
         <p className="text-gray-600 text-sm">{section.description}</p>
       </div>
@@ -351,13 +399,42 @@ const PromptSection = ({ section, onChange, className = '', highlight = false })
       <textarea
         value={section.content}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 resize-none transition-all duration-200"
+        className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 resize-y transition-all duration-200"
         placeholder={`Digite o conteúdo para ${section.title.toLowerCase()}...`}
       />
       
-      <div className="mt-2 text-xs text-gray-500">
-        {section.content.length} caracteres
+      <div className="mt-2 text-xs text-gray-500 flex items-center justify-between">
+        <span>{section.content.length} caracteres</span>
+        <span className="text-gray-400 hidden sm:inline">Arraste para redimensionar ↕</span>
       </div>
+
+      {isFullscreen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white w-full max-w-4xl h-[85vh] rounded-xl shadow-lg border border-gray-200 p-6 flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">{section.title}</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsFullscreen(false)}
+                  className="text-sm px-3 py-1.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+            <textarea
+              value={section.content}
+              onChange={(e) => onChange(e.target.value)}
+              className="flex-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 resize-none md:resize-y"
+              placeholder={`Digite o conteúdo para ${section.title.toLowerCase()}...`}
+            />
+            <div className="mt-2 text-xs text-gray-500 flex items-center justify-between">
+              <span>{section.content.length} caracteres</span>
+              <span className="text-gray-400 hidden sm:inline">Arraste para redimensionar ↕</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
