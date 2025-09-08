@@ -109,15 +109,7 @@ const Login = ({ onLogin }) => {
             </button>
           </div>
 
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => window.location.href = '/clear-cache'}
-              className="text-sm text-gray-500 hover:text-gray-700 underline"
-            >
-              🧹 Limpar Cache e Sessão
-            </button>
-          </div>
+          {/* Link de limpar cache removido a pedido do cliente */}
         </form>
       </div>
     </div>
