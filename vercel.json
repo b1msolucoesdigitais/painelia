@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/clear-cache", "destination": "/clear-cache.html" }
+  ]
+}
+
+
