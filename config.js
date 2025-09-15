@@ -58,6 +58,16 @@ module.exports = {
   },
 
   // ========================================
+  // INTEGRAÇÃO: FETCH DO PROMPT ESTRUTURADO VIA WEBHOOK
+  // ========================================
+  PROMPT_FETCH: {
+    // URL do webhook que retorna o objeto estruturado
+    URL: process.env.PROMPT_FETCH_WEBHOOK_URL || 'https://whook.b1m.digital/webhook/ebeb6029-a328-4c13-b1da-ce560557cc7d',
+    // Headers extras opcionais (objeto simples). Pode ser definido via JSON em env e parseado externamente se preferir
+    HEADERS: {},
+  },
+
+  // ========================================
   // CONFIGURAÇÕES DE LOG
   // ========================================
   LOG: {

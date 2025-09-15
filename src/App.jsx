@@ -33,8 +33,14 @@ function App() {
     }
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setIsAuthenticated(true);
+    // Após autenticar, aciona o carregamento do prompt estruturado no backend
+    try {
+      await fetch('/api/prompt/structured', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+    } catch {}
   };
 
   const handleLogout = () => {

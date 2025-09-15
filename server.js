@@ -215,13 +215,53 @@ app.get('/api/config/panel', (req, res) => {
 // Rota para obter o prompt (compatibilidade)
 app.get('/api/prompt/structured', authenticateToken, async (req, res) => {
   try {
+    console.log('🛎️ [server] GET /api/prompt/structured chamado');
+    const fetchUrl = (config && config.PROMPT_FETCH && config.PROMPT_FETCH.URL) || '';
+
+    // 1) Se houver webhook configurado, tenta buscar de lá primeiro
+    if (fetchUrl) {
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (config && config.PROMPT_FETCH && config.PROMPT_FETCH.HEADERS && typeof config.PROMPT_FETCH.HEADERS === 'object') {
+          for (const k of Object.keys(config.PROMPT_FETCH.HEADERS)) headers[k] = String(config.PROMPT_FETCH.HEADERS[k]);
+        }
+
+        console.log(`📥 [server] Buscando prompt estruturado via webhook (POST): ${fetchUrl}`);
+        const response = await fetch(fetchUrl, { method: 'POST', headers, body: JSON.stringify({ action: 'fetch_prompt_config' }), signal: AbortSignal.timeout(config.WEBHOOK.TIMEOUT) });
+        console.log(`📥 [server] Resposta do webhook (status): ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const remote = await response.json();
+        const required = ['current_date','greeting','personality','context','role_objective','actions','product_search','handoff','restrictions','essential_rules','settings','examples','closing'];
+        const hasRequired = required.every(key => remote && remote[key] && typeof remote[key].content === 'string');
+
+        if (hasRequired) {
+          const promptConfig = {
+            ...remote,
+            metadata: { ...(remote.metadata || {}), source: 'webhook', lastUpdated: new Date().toISOString() }
+          };
+
+          // Best-effort: sobrescreve arquivos locais
+          const configPath = path.join(__dirname, config.FILES.PROMPT_CONFIG_FILE);
+          try { 
+            await fs.writeFile(configPath, JSON.stringify(promptConfig, null, 2), 'utf8'); 
+            console.log(`💾 [server] prompt-config.json sobrescrito via webhook`);
+          } catch (e) {
+            console.warn('⚠️ [server] Falha ao escrever prompt-config.json:', e && e.message ? e.message : e);
+          }
+
+          return res.json(promptConfig);
+        }
+      } catch (err) {
+        console.warn('⚠️ [server] Falha ao obter prompt do webhook, usando fallback local:', err && err.message ? err.message : err);
+      }
+    }
+
+    // 2) Fallback: ler arquivo local
     const configPath = path.join(__dirname, config.FILES.PROMPT_CONFIG_FILE);
     const content = await fs.readFile(configPath, 'utf8');
     const promptConfig = JSON.parse(content);
-    
-    // Atualizar metadata
-    promptConfig.metadata.lastUpdated = new Date().toISOString();
-    
+    promptConfig.metadata = { ...(promptConfig.metadata || {}), source: 'local', lastUpdated: new Date().toISOString() };
     res.json(promptConfig);
   } catch (error) {
     console.error('❌ Erro ao ler prompt estruturado:', error);
@@ -657,6 +697,11 @@ app.listen(PORT, HOST, () => {
   console.log(`🌐 Frontend: http://${HOST}:${PORT}`);
   console.log(`🔗 Webhook Principal: ${config.WEBHOOK.URL}`);
   console.log(`🔄 Webhook Produtos: ${config.WEBHOOK.PRODUCTS_UPDATE_URL}`);
+  if (config.PROMPT_FETCH && config.PROMPT_FETCH.URL) {
+    console.log(`📥 Webhook (fetch prompt estruturado): ${config.PROMPT_FETCH.URL}`);
+  } else {
+    console.log('📥 Webhook (fetch prompt estruturado): não configurado');
+  }
   console.log(`🔐 Credenciais padrão: admin / password`);
   console.log(`📝 Para desenvolvimento: npm run build && npm start`);
   console.log(`⚙️ Configurações carregadas de: config.js`);
